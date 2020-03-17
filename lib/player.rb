@@ -2,7 +2,7 @@ class Player
 
   BET_SIZE = 10
 
-  attr_accessor :cards
+  attr_accessor :cards, :account, :passed
   attr_reader :name, :passed
 
   def initialize(name)
@@ -13,8 +13,12 @@ class Player
   end
 
   def make_bet
-    account -= BET_SIZE
+    self.account -= BET_SIZE
     BET_SIZE
+  end
+
+  def assign_money(summ)
+    self.account += summ
   end
 
   def take_card(card)
@@ -33,8 +37,7 @@ class Player
     cards.values.sum
   end
 
-  private
-
-  attr_accessor :account, :passed
-  
+  def to_s
+    self.name
+  end  
 end

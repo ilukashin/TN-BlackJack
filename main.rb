@@ -12,9 +12,11 @@ class Main
   POINTS = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
   SUITES = %w(♠ ♡ ♣ ♢)
 
+  attr_accessor :player, :diller, :players, :current_player, :card_deck, :bank, :winner
+
   def initialize
-    @player = HumanPlayer.new('Name')
-    @diller = ComputerPlayer.new
+    @player = Player.new('Name')
+    @diller = Player.new('Diller')
 
     @players = [player, diller]
     @current_player = player
@@ -23,7 +25,7 @@ class Main
   end
 
   def start_game
-    prepare_deck
+    prepare_stuff
     loop do
       if current_player.eql?(player)
         player_turn
@@ -36,7 +38,40 @@ class Main
 
   private
 
-  attr_accessor :player, :diller, :players, :current_player, :card_deck
+
+  def prepare_stuff
+    @bank = 0
+    prepare_deck
+    init_players_hands
+    make_bets
+    @winner = ''
+  end
+
+  def prepare_deck
+    SUITES.each do |suite|
+      CARDS.each do |card|
+        card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
+      end
+    end
+  end
+
+  def init_players_hands
+    players.each do |player|
+      2.times { player.take_card(card_from_deck) }
+    end
+  end
+
+  def make_bets
+    players.each do |player|
+      self.bank += player.make_bet
+    end
+  end
+
+  def card_from_deck
+    card = card_deck.sample
+    card_deck.delete(card)
+    card
+  end
 
   def player_turn
     puts 'Make your turn', ACTIONS
@@ -60,14 +95,6 @@ class Main
 
   end
 
-  def prepare_deck
-    SUITES.each do |suite|
-      CARDS.each do |card|
-        card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
-      end
-    end
-  end
-
   def pass
     current_player.pass
     change_player
@@ -78,10 +105,7 @@ class Main
   end
 
   def take_card
-    card = card_deck.sample
-    card_deck.delete(card)
-
-    current_player.take_card(card)
+    current_player.take_card(card_from_deck)
     change_player
   end
 
@@ -89,7 +113,36 @@ class Main
     players.each do |player|
       puts "#{player.show_cards} - score: #{player.score}"
     end
+    check_winner
+    puts "Winner is #{winner}!"
   end
+
+  def check_winner
+    if player.score.eql?(21)
+      self.winner = player
+    elsif player.score > 21
+      self.winner = diller
+    elsif player.score > diller.score
+      self.winner = player
+    elsif player.score < diller.score
+      self.winner = diller
+    else
+      draw
+      return
+    end
+    award(winner, bank)
+  end
+
+  def award(winner, bank)
+    winner.assign_money(bank)
+  end
+
+  def draw
+    players.each do |player|
+      player.assign_money(bank / players.count)
+    end
+  end
+
 end
 
 
