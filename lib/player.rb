@@ -25,6 +25,10 @@ class Player
     passed = true
   end
 
+  def show_cards
+    cards.keys.join(', ')
+  end
+
   def score
     cards.values.sum
   end
