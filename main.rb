@@ -49,8 +49,11 @@ class Main
   end
 
   def computer_turn
-    
-
+    if current_player.score < 17
+      take_card
+    else
+      pass
+    end
   end
 
   def have_winner?
