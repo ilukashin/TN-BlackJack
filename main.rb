@@ -1,19 +1,20 @@
+# frozen_string_literal: true
+
 require_relative './lib/player.rb'
-require 'pry'
 
 class Main
-
   ACTIONS = <<-LIST
     1 - Pass
     2 - Take card
     3 - Show cards
   LIST
 
-  CARDS = %w(A 2 3 4 5 6 7 8 9 10 J Q K)
-  POINTS = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
-  SUITES = %w(♠ ♡ ♣ ♢)
+  CARDS = %w[A 2 3 4 5 6 7 8 9 10 J Q K].freeze
+  POINTS = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10].freeze
+  SUITES = %w[♠ ♡ ♣ ♢].freeze
 
-  attr_accessor :player, :diller, :players, :current_player, :card_deck, :bank, :winner
+  attr_accessor :player, :diller, :players, :current_player,
+                :card_deck, :bank, :winner
 
   def initialize
     puts 'Input username:'
@@ -30,8 +31,8 @@ class Main
     prepare_stuff
     loop do
       check_players_state
-      break if have_winner?
-      #binding.pry
+      break if winner?
+
       if current_player.eql?(player)
         player_turn
       else
@@ -43,7 +44,7 @@ class Main
   private
 
   def check_players_state
-    open_cards if players.all? { |player| player.passed }
+    open_cards if players.all?(&:passed)
     open_cards if players.all? { |player| player.cards.count.eql?(3) }
   end
 
@@ -83,12 +84,12 @@ class Main
 
   def player_turn
     puts 'Make your turn', ACTIONS
-      input = gets.chomp.to_i
-      case input
-      when 1 then pass
-      when 2 then take_card
-      when 3 then open_cards
-      end
+    input = gets.chomp.to_i
+    case input
+    when 1 then pass
+    when 2 then take_card
+    when 3 then open_cards
+    end
   end
 
   def computer_turn
@@ -99,9 +100,11 @@ class Main
     end
   end
 
-  def have_winner?
+  # rubocop:disable Style/DoubleNegation
+  def winner?
     !!winner
   end
+  # rubocop:enable Style/DoubleNegation
 
   def pass
     current_player.pass
@@ -109,7 +112,8 @@ class Main
   end
 
   def change_player
-    self.current_player = players.select { |player| player != current_player }.first
+    self.current_player = players.reject { |player| player == current_player }
+                                 .first
   end
 
   def take_card
@@ -125,6 +129,7 @@ class Main
     puts "Winner is #{winner}!"
   end
 
+  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
   def check_winner
     if player.score.eql?(21)
       self.winner = player
@@ -140,6 +145,7 @@ class Main
     end
     award(winner, bank)
   end
+  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
   def award(winner, bank)
     winner.assign_money(bank)
@@ -150,8 +156,6 @@ class Main
       player.assign_money(bank / players.count)
     end
   end
-
 end
-
 
 Main.new.start_game

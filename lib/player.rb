@@ -1,9 +1,10 @@
-class Player
+# frozen_string_literal: true
 
+class Player
   BET_SIZE = 10
 
   attr_accessor :cards, :account, :passed
-  attr_reader :name, :passed
+  attr_reader :name
 
   def initialize(name)
     @name = name
@@ -38,6 +39,6 @@ class Player
   end
 
   def to_s
-    self.name
-  end  
+    name
+  end
 end
