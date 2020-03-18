@@ -9,6 +9,9 @@ class Main
     3 - Show cards
   LIST
 
+  WELCOME_MESSAGE = "\nWelcome to Casino Royale!\n"
+  GOODBYE_MESSAGE = "\nThanks for playing!\n"
+
   CARDS = %w[A 2 3 4 5 6 7 8 9 10 J Q K].freeze
   POINTS = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10].freeze
   SUITES = %w[♠ ♡ ♣ ♢].freeze
@@ -23,15 +26,16 @@ class Main
 
     @players = [player, diller]
     @current_player = player
-    puts 'Welcome to Casino Royale!'
     @card_deck = []
   end
 
   def run
+    puts WELCOME_MESSAGE
     loop do
       start_game
       break unless play_again?
     end
+    puts GOODBYE_MESSAGE
   end
 
   private
@@ -61,6 +65,7 @@ class Main
   end
 
   def prepare_stuff
+    puts '=' * 30, 'Game started!'
     clear_players_state
     @bank = 0
     prepare_deck
@@ -100,7 +105,8 @@ class Main
   end
 
   def player_turn
-    puts 'Make your turn', ACTIONS
+    turn_message
+    puts 'Make your turn:', ACTIONS
     input = gets.chomp.to_i
     case input
     when 1 then pass
@@ -108,6 +114,14 @@ class Main
     when 3 then open_cards
     end
   end
+
+  # rubocop:disable Metrics/AbcSize, Layout/LineLength
+  def turn_message
+    puts '-' * 20,
+         "#{diller.name} cards: #{'*' * diller.cards.count}",
+         "#{player.name} cards: #{player.cards.keys.join(', ')} - score: #{player.score}"
+  end
+  # rubocop:enable Metrics/AbcSize, Layout/LineLength
 
   def computer_turn
     if current_player.score < 17
@@ -143,7 +157,10 @@ class Main
       puts "#{player.name} #{player.show_cards} - score: #{player.score}"
     end
     check_winner
-    puts "Winner is #{winner}!"
+    puts '*' * 20,
+         "Winner is #{winner}!",
+         '*' * 20,
+         "Your account is #{player.account}"
   end
 
   # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
