@@ -1,4 +1,4 @@
-Dir['./lib/*.rb'].sort.each { |file| require file }
+require_relative './lib/player.rb'
 require 'pry'
 
 class Main
