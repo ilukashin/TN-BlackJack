@@ -27,6 +27,15 @@ class Main
     @card_deck = []
   end
 
+  def run
+    loop do
+      start_game
+      break unless play_again?
+    end
+  end
+
+  private
+
   def start_game
     prepare_stuff
     loop do
@@ -41,7 +50,10 @@ class Main
     end
   end
 
-  private
+  def play_again?
+    puts 'Play again? [y/n]'
+    gets.chomp.eql?('y')
+  end
 
   def check_players_state
     open_cards if players.all?(&:passed)
@@ -49,11 +61,16 @@ class Main
   end
 
   def prepare_stuff
+    clear_players_state
     @bank = 0
     prepare_deck
     init_players_hands
     make_bets
     @winner = nil
+  end
+
+  def clear_players_state
+    players.each(&:clear_state)
   end
 
   def prepare_deck
@@ -158,4 +175,4 @@ class Main
   end
 end
 
-Main.new.start_game
+Main.new.run

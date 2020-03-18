@@ -38,6 +38,11 @@ class Player
     cards.values.sum
   end
 
+  def clear_state
+    self.cards = {}
+    self.passed = false
+  end
+
   def to_s
     name
   end
