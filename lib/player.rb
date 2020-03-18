@@ -26,7 +26,7 @@ class Player
   end
 
   def pass
-    passed = true
+    self.passed = true
   end
 
   def show_cards

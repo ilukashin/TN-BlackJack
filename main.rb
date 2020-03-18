@@ -1,4 +1,5 @@
 Dir['./lib/*.rb'].sort.each { |file| require file }
+require 'pry'
 
 class Main
 
@@ -15,7 +16,8 @@ class Main
   attr_accessor :player, :diller, :players, :current_player, :card_deck, :bank, :winner
 
   def initialize
-    @player = Player.new('Name')
+    puts 'Input username:'
+    @player = Player.new(gets.chomp)
     @diller = Player.new('Diller')
 
     @players = [player, diller]
@@ -27,24 +29,30 @@ class Main
   def start_game
     prepare_stuff
     loop do
+      check_players_state
+      break if have_winner?
+      #binding.pry
       if current_player.eql?(player)
         player_turn
       else
         computer_turn
       end
-      break if have_winner?      
     end
   end
 
   private
 
+  def check_players_state
+    open_cards if players.all? { |player| player.passed }
+    open_cards if players.all? { |player| player.cards.count.eql?(3) }
+  end
 
   def prepare_stuff
     @bank = 0
     prepare_deck
     init_players_hands
     make_bets
-    @winner = ''
+    @winner = nil
   end
 
   def prepare_deck
@@ -92,7 +100,7 @@ class Main
   end
 
   def have_winner?
-
+    !!winner
   end
 
   def pass
@@ -101,7 +109,7 @@ class Main
   end
 
   def change_player
-
+    self.current_player = players.select { |player| player != current_player }.first
   end
 
   def take_card
@@ -111,7 +119,7 @@ class Main
 
   def open_cards
     players.each do |player|
-      puts "#{player.show_cards} - score: #{player.score}"
+      puts "#{player.name} #{player.show_cards} - score: #{player.score}"
     end
     check_winner
     puts "Winner is #{winner}!"
