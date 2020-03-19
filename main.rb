@@ -46,12 +46,9 @@ class Main
       check_players_state
       break if winner?
 
-      if current_player.eql?(player)
-        player_turn
-      else
-        computer_turn
-      end
+      current_player.eql?(player) ? player_turn : computer_turn
     end
+    open_cards
   end
 
   def play_again?
@@ -59,10 +56,13 @@ class Main
     gets.chomp.eql?('y')
   end
 
+  # rubocop:disable Metrics/AbcSize
   def check_players_state
-    open_cards if players.all?(&:passed)
-    open_cards if players.all? { |player| player.cards.count.eql?(3) }
+    check_winner if players.all?(&:passed)
+    check_winner if players.all? { |player| player.cards.count.eql?(3) }
+    check_winner if diller.passed && player.cards.count.eql?(3)
   end
+  # rubocop:enable Metrics/AbcSize
 
   def prepare_stuff
     puts '=' * 30, 'Game started!'
@@ -79,6 +79,7 @@ class Main
   end
 
   def prepare_deck
+    card_deck.clear
     SUITES.each do |suite|
       CARDS.each do |card|
         card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
@@ -111,7 +112,7 @@ class Main
     case input
     when 1 then pass
     when 2 then take_card
-    when 3 then open_cards
+    when 3 then check_winner
     end
   end
 
@@ -156,36 +157,41 @@ class Main
     players.each do |player|
       puts "#{player.name} #{player.show_cards} - score: #{player.score}"
     end
-    check_winner
+    award(winner, bank)
+  end
+
+  # rubocop:disable all
+  def check_winner
+    self.winner = if player.score.eql?(diller.score)
+                    players
+                  elsif player.score.eql?(21)
+                    player
+                  elsif player.score > 21
+                    diller
+                  elsif player.score > diller.score
+                    player
+                  elsif player.score < diller.score && diller.score <= 21
+                    diller
+                  elsif player.score < diller.score && diller.score > 21
+                    player
+                  end
+  end
+  # rubocop:enable all
+
+  def award(winner, bank)
+    puts '*' * 20
+    if winner.is_a?(Array)
+      draw
+    else
+      winner.assign_money(bank)
+      puts "Winner is #{winner}!"
+    end
     puts '*' * 20,
-         "Winner is #{winner}!",
-         '*' * 20,
          "Your account is #{player.account}"
   end
 
-  # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-  def check_winner
-    if player.score.eql?(21)
-      self.winner = player
-    elsif player.score > 21
-      self.winner = diller
-    elsif player.score > diller.score
-      self.winner = player
-    elsif player.score < diller.score
-      self.winner = diller
-    else
-      draw
-      return
-    end
-    award(winner, bank)
-  end
-  # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
-
-  def award(winner, bank)
-    winner.assign_money(bank)
-  end
-
   def draw
+    puts 'It\'s a draw!'
     players.each do |player|
       player.assign_money(bank / players.count)
     end
