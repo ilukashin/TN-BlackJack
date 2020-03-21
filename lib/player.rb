@@ -9,7 +9,7 @@ class Player
   def initialize(name)
     @name = name
     @account = 100
-    @cards = {}
+    @cards = []
     @passed = false
   end
 
@@ -23,7 +23,7 @@ class Player
   end
 
   def take_card(card)
-    cards.merge!(card)
+    cards << card
   end
 
   def pass
@@ -31,19 +31,30 @@ class Player
   end
 
   def show_cards
-    cards.keys.join(', ')
+    cards.map(&:name)
+         .join(', ')
   end
 
   def score
-    cards.values.sum
+    if cards_sum > 21 && show_cards.include?('A')
+      cards.select { |el| el.name =~ /A/ }.first.value = 1
+    end
+    cards_sum
   end
 
   def clear_state
-    self.cards = {}
+    cards.clear
     self.passed = false
   end
 
   def to_s
     name
+  end
+
+  private
+
+  def cards_sum
+    cards.map(&:value)
+         .sum
   end
 end

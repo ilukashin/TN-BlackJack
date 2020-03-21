@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './lib/player.rb'
+require_relative './lib/card.rb'
 
 class Main
   ACTIONS = <<-LIST
@@ -82,7 +83,7 @@ class Main
     card_deck.clear
     SUITES.each do |suite|
       CARDS.each do |card|
-        #card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
+        # card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
         card_deck << Card.new("#{card}#{suite}", POINTS[CARDS.index(card)])
       end
     end
@@ -117,13 +118,12 @@ class Main
     end
   end
 
-  # rubocop:disable Metrics/AbcSize, Layout/LineLength
   def turn_message
     puts '-' * 20,
          "#{diller.name} cards: #{'*' * diller.cards.count}",
-         "#{player} cards: #{player.cards.keys.join(', ')} - score: #{player.score}"
+         "#{player} cards: #{player.show_cards} - score: #{player.score}"
   end
-  # rubocop:enable Metrics/AbcSize, Layout/LineLength
+  # rubocop:enable
 
   def computer_turn
     if current_player.score < 17
