@@ -82,7 +82,8 @@ class Main
     card_deck.clear
     SUITES.each do |suite|
       CARDS.each do |card|
-        card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
+        #card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
+        card_deck << Card.new("#{card}#{suite}", POINTS[CARDS.index(card)])
       end
     end
   end
@@ -120,7 +121,7 @@ class Main
   def turn_message
     puts '-' * 20,
          "#{diller.name} cards: #{'*' * diller.cards.count}",
-         "#{player.name} cards: #{player.cards.keys.join(', ')} - score: #{player.score}"
+         "#{player} cards: #{player.cards.keys.join(', ')} - score: #{player.score}"
   end
   # rubocop:enable Metrics/AbcSize, Layout/LineLength
 
@@ -155,7 +156,7 @@ class Main
 
   def open_cards
     players.each do |player|
-      puts "#{player.name} #{player.show_cards} - score: #{player.score}"
+      puts "#{player} #{player.show_cards} - score: #{player.score}"
     end
     award(winner, bank)
   end
