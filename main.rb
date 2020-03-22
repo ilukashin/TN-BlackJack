@@ -2,6 +2,7 @@
 
 require_relative './lib/player.rb'
 require_relative './lib/card.rb'
+require_relative './lib/deck.rb'
 
 class Main
   ACTIONS = <<-LIST
@@ -13,10 +14,6 @@ class Main
   WELCOME_MESSAGE = "\nWelcome to Casino Royale!\n"
   GOODBYE_MESSAGE = "\nThanks for playing!\n"
 
-  CARDS = %w[A 2 3 4 5 6 7 8 9 10 J Q K].freeze
-  POINTS = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10].freeze
-  SUITES = %w[♠ ♡ ♣ ♢].freeze
-
   attr_accessor :player, :diller, :players, :current_player,
                 :card_deck, :bank, :winner
 
@@ -27,7 +24,7 @@ class Main
 
     @players = [player, diller]
     @current_player = player
-    @card_deck = []
+    @card_deck = nil
   end
 
   def run
@@ -80,18 +77,13 @@ class Main
   end
 
   def prepare_deck
-    card_deck.clear
-    SUITES.each do |suite|
-      CARDS.each do |card|
-        # card_deck << { "#{card}#{suite}" => POINTS[CARDS.index(card)] }
-        card_deck << Card.new("#{card}#{suite}", POINTS[CARDS.index(card)])
-      end
-    end
+    card_deck.cards.clear
+    card_deck = Deck.new
   end
 
   def init_players_hands
     players.each do |player|
-      2.times { player.take_card(card_from_deck) }
+      2.times { player.take_card(card_deck.take_card) }
     end
   end
 
@@ -99,12 +91,6 @@ class Main
     players.each do |player|
       self.bank += player.make_bet
     end
-  end
-
-  def card_from_deck
-    card = card_deck.sample
-    card_deck.delete(card)
-    card
   end
 
   def player_turn
@@ -150,7 +136,7 @@ class Main
   end
 
   def take_card
-    current_player.take_card(card_from_deck)
+    current_player.take_card(card_deck.take_card)
     change_player
   end
 
