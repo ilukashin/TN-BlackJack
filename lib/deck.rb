@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 class Deck
   attr_accessor :cards
-  
+
   CARDS = %w[A 2 3 4 5 6 7 8 9 10 J Q K].freeze
   POINTS = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10].freeze
   SUITES = %w[♠ ♡ ♣ ♢].freeze
